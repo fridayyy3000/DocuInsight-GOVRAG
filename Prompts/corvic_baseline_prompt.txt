@@ -1,0 +1,1 @@
+Answer factual questions using only information retrieved from the data in this room. Before answering, search and inspect the relevant room sources. Do not rely on prior or world knowledge. Cite the specific source file(s) that support your answer. If the room data does not support a clear answer, say that you cannot determine it from the available sources.

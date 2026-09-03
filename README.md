@@ -8,7 +8,8 @@ DocuInsight is an open-ended document QA application powered by **GOV-RAG**, a u
 
 https://govrag-api-347724837198.us-central1.run.app/app
 
-The demo supports PDF, DOCX, TXT and Markdown uploads.
+The demo supports PDF, DOCX, TXT and Markdown uploads. Demo collections are
+temporary browser sessions and expire after 24 hours.
 
 ## How to use the app
 
@@ -25,7 +26,25 @@ The demo supports PDF, DOCX, TXT and Markdown uploads.
 
 For ordinary documents with no meaningful disagreement, DocuInsight behaves like normal grounded document QA.
 
-Demo collections currently expire after 24 hours.
+Demo collections currently expire after 24 hours. The browser uses the
+unauthenticated `/demo/corpora/*` session API; administrative `/corpora/*`
+routes remain API-key protected.
+
+## Browser API
+
+The intended browser workflow is:
+
+1. `POST /demo/corpora` with `{"name":"My Workspace"}` to create a short-lived collection.
+2. `POST /demo/corpora/{corpus_id}/documents` as multipart form data using one or more `files` fields.
+3. `POST /demo/corpora/{corpus_id}/query` with `{"question":"..."}`. The corpus is automatically materialized and indexed when needed.
+4. `GET /demo/corpora/{corpus_id}` and `GET /demo/corpora/{corpus_id}/documents` to restore session state.
+5. `DELETE /demo/corpora/{corpus_id}` when the user starts a new collection.
+
+The browser API does not receive `GOVRAG_API_SECRET`, GCP credentials, or any
+other secret. It has no endpoint that lists all demo collections. Demo uploads
+are limited to 500 documents, 20 MB per file, and 500 MB total per collection.
+The frontend and API share the same Cloud Run origin, so the frontend uses
+relative URLs.
 
 ## Reproduce the ConflictBench Easy experiment
 
@@ -114,8 +133,8 @@ Gold answers are used only for evaluation and are not supplied to GOV-RAG during
 The two prompts used for the Corvic conditions are in:
 
 ```text
-prompts/corvic_baseline_prompt.txt
-prompts/retrieval_focused_prompt.txt
+Prompts/corvic_baseline_prompt.txt
+Prompts/retrieval_focused_prompt.txt
 ```
 
 ## GOV-RAG in one view
@@ -149,24 +168,28 @@ GOV-RAG does not require conflicting documents. When documents agree or governan
 
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for implementation details.
 
-## Suggested repository layout
+## Submission layout
 
 ```text
-DocuInsight/
+DocuInsight-GOVRAG/
 ├── README.md
-├── ARCHITECTURE.md
-├── prompts/
+├── Prompts/
 │   ├── corvic_baseline_prompt.txt
 │   └── retrieval_focused_prompt.txt
 ├── benchmark/
-│   └── easy_questions.csv
-├── govrag/
-│   ├── gov_rag.py
-│   ├── gov_rag_gemini.py
-│   └── chunker.py
-└── api/
-    └── main.py
+│   ├── README.md
+│   ├── questions.csv
+│   ├── ground_truth_manifest.csv
+│   ├── results_template.csv
+│   └── packs/
+└── docs/
+   └── ARCHITECTURE.md
 ```
+
+The runnable service is maintained in the companion `govrag_api/` application
+directory used to produce the live demo. This submission repository contains
+the product explanation, architecture, prompts, and evaluation materials; it
+is not itself a second backend implementation.
 
 ## Notes
 

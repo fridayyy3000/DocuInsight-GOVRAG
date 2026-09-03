@@ -105,7 +105,13 @@ For each source, GOV-RAG estimates governance-related metadata when explicit evi
 - scope match;
 - authority score.
 
-For ordinary documents without governance signals, these values remain neutral rather than preventing normal QA.
+For ordinary documents without governance signals, `status` and document type
+remain `unknown`, while the normalized authority score is the fixed neutral
+baseline `0.4` (raw authority `0.0`). This does not give an ordinary document
+an advantage over another ordinary document; both receive the same governance
+weight, leaving semantic relevance, scope, and direct evidence to distinguish
+them. Explicit negative disclaimers can score below neutral, and explicit
+authoritative policy cues can score above neutral.
 
 ## Claim and conflict analysis
 
@@ -121,7 +127,10 @@ audit_note.md      -> 1.00%
 
 Multiple sources do not automatically imply conflict. Conflict is present only when question-relevant evidence contains meaningfully incompatible answers.
 
-When sources agree, GOV-RAG behaves like grounded semantic RAG. When sources disagree, governance signals become more important for deciding which evidence should govern.
+When sources agree, GOV-RAG behaves like grounded semantic RAG. When sources
+disagree, governance signals become more important for deciding which evidence
+should govern. This is one unified chunk-retrieval and reranking pipeline, not
+a normal-RAG pipeline followed by a mode switch.
 
 ## Unified reranking
 
@@ -227,3 +236,22 @@ Cloud Run: DocuInsight + FastAPI
 ```
 
 The frontend and API are served from the same Cloud Run service.
+
+## Browser session flow
+
+The public browser flow uses these same-origin routes:
+
+```text
+POST   /demo/corpora
+POST   /demo/corpora/{corpus_id}/documents
+POST   /demo/corpora/{corpus_id}/query
+GET    /demo/corpora/{corpus_id}
+GET    /demo/corpora/{corpus_id}/documents
+DELETE /demo/corpora/{corpus_id}
+```
+
+The browser never receives the protected API key or cloud credentials. A
+cryptographically random corpus ID identifies a session, demo corpora expire
+after 24 hours, and there is deliberately no public collection-list endpoint.
+The protected `/corpora/*` routes remain available for server-side
+administration.

@@ -115,9 +115,9 @@ Gold answers are used only for evaluation and are not supplied to GOV-RAG during
 
 | Method | Easy Accuracy |
 | --- | ---: |
-| Corvic baseline | 6.7% (1/15) |
-| + RAG/data pipeline | 33.3% (5/15) |
-| + retrieval-focused prompting | 46.2% (6/13)* |
+| Corvic baseline | **20.0% (3/15)** |
+| + RAG/data pipeline | **40.0% (6/15)** |
+| + retrieval-focused prompting | **53.85% (7/13)\*** |
 | **GOV-RAG** | **100% (15/15)** |
 
 \* The retrieval-focused Corvic condition was a partial diagnostic run; usage ended before all 15 questions were completed.
